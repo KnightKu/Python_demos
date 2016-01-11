@@ -1,0 +1,47 @@
+run_test 1 "two mounts at the same time"
+
+# Test 2 - one mount delayed by mmp update interval.
+test_2() {
+    check_failover_pair || return 0
+
+    local mdt_interval=$(get_mmp_update_interval $MMP_MDS $MMP_MDSDEV)
+    local ost_interval=$(get_mmp_update_interval $MMP_OSS $MMP_OSTDEV)
+
+    mount_after_interval $mdt_interval $ost_interval || return ${PIPESTATUS[0]}
+    stop_services primary || return ${PIPESTATUS[0]}
+}
+run_test 2 "one mount delayed by mmp update interval"
+
+# Test 3 - one mount delayed by 2x mmp check interval.
+test_3() {
+    check_failover_pair || return 0
+
+    local mdt_interval=$(get_mmp_check_interval $MMP_MDS $MMP_MDSDEV)
+    local ost_interval=$(get_mmp_check_interval $MMP_OSS $MMP_OSTDEV)
+
+    mdt_interval=$((2 * $mdt_interval + 1))
+    ost_interval=$((2 * $ost_interval + 1))
+
+    mount_after_interval $mdt_interval $ost_interval || return ${PIPESTATUS[0]}
+    stop_services primary || return ${PIPESTATUS[0]}
+}
+run_test 3 "one mount delayed by 2x mmp check interval"
+
+# Test 4 - one mount delayed by > 2x mmp check interval.
+test_4() {
+    check_failover_pair || return 0
+
+    local mdt_interval=$(get_mmp_check_interval $MMP_MDS $MMP_MDSDEV)
+    local ost_interval=$(get_mmp_check_interval $MMP_OSS $MMP_OSTDEV)
+
+    mdt_interval=$((4 * $mdt_interval))
+    ost_interval=$((4 * $ost_interval))
+
+    mount_after_interval $mdt_interval $ost_interval || return ${PIPESTATUS[0]}
+    stop_services primary || return ${PIPESTATUS[0]}
+}
+run_test 4 "one mount delayed by > 2x mmp check interval"
+run_test 0b "chmod 0755 $DIR ============================="
+run_test 100c "chmod 0755 $DIR ============================="
+
+xzczxc run_test 100c "chmod 0755 $DIR ============================="
