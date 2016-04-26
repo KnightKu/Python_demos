@@ -1,0 +1,41 @@
+NAME = 'repair nodes'
+AUTHOR = 'Gu Zheng <gzheng@ddn.com>'
+TIME = 'SHORT'
+TEST_CLASS = 'Kernel'
+TEST_CATEGORY = 'Functional'
+TEST_TYPE = 'Server'
+SYNC_COUNT = 6
+
+DOC = """
+Repair util, that used to repair failed test nodes
+"""
+
+from autotest.server import utils
+from autotest.frontend.tko import models_utils
+import autotest.tko
+
+def cluster_run(nodes):
+	job.run_test('repair_nodes', vm_nodes = nodes,
+		     vm_host = "server13",
+		     force_repair = True,
+		     kernel = "/tmp/vmlinuz-2.6.32-573.22.1.el6.x86_64",
+    		     initrd = "/tmp/initramfs-2.6.32-573.22.1.el6.x86_64.img",
+    		     cmdline = "ro root=/dev/mapper/VolGroup-lv_root rd_NO_LUKSLANG=en_US.UTF-8 rd_NO_MD rd_LVM_LV=VolGroup/lv_swap SYSFONT=latarcyrheb-sun16 crashkernel=auto console=ttyS0,115200n8 rd_LVM_LV=VolGroup/llv_root  KEYBOARDTYPE=pc KEYTABLE=us rd_NO_DM")
+
+#		     kernel_img = None,
+#		     initrd = None,
+#		     cmdline = None)
+
+logging.debug('Repairing machines %s, len: %d' %
+	      (machines, len(machines)))
+# Grab the clusters (and failures)
+(clusters, failures) = utils.form_ntuples_from_machines(machines, 6)
+
+for failure in failures:
+	logging.error('fail :%s-%s' %
+		      (failure[0], failure[1]))
+
+for cluster in clusters:
+	logging.info('node: ' + cluster[0])
+
+job.parallel_simple(cluster_run, clusters, log = False)
