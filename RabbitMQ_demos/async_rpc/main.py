@@ -1,10 +1,24 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
-from . import settings
+import settings
 from client import Client
 import random,time
 import threading
+import logging
+import logging.handlers
+
+LOG_FILE = "/tmp/test01.log"
+handler = logging.handlers.RotatingFileHandler(LOG_FILE, maxBytes=20 * 1024 * 1024, backupCount=10)  # 实例化handler
+fmt = "%(asctime)s - %(name)s - %(levelname)s - %(message)s - [%(filename)s:%(lineno)s]"
+formatter = logging.Formatter(fmt)  # 实例化formatter
+handler.setFormatter(formatter)  # 为handler添加formatter
+
+logger = logging.getLogger('logxxx')  # 获取名为xzs的logger
+logger.addHandler(handler)  # 为logger添加handler
+logger.setLevel(logging.DEBUG)
+
+logger.debug("######Start line")
 
 class Handler(object):
     def __init__(self):
@@ -42,6 +56,7 @@ class Handler(object):
             #print("--->>",user_cmd)
             command = user_cmd.split("\"")[1]
             hosts = user_cmd.split()[3:]
+            print command
             for host in hosts:
                 task_id = random.randint(10000, 99999)
                 client = Client()
@@ -51,7 +66,8 @@ class Handler(object):
         except IndexError as e:
             print("\33[31;0mError：%s\33[0m"%e)
 
-    def reflect(self,str,user_cmd):
+    def reflect(self, str, user_cmd):
+        logger.debug("str:%s, cmd:%s" % (str, user_cmd))
         '''反射'''
         if hasattr(self, str):
             getattr(self, str)(user_cmd)
@@ -61,8 +77,14 @@ class Handler(object):
 
     def start(self):
         while True:
-            user_cmd = input("->>").strip()
-            if not user_cmd:continue
-            str = user_cmd.split()[0]
-            t1 = threading.Thread(target=self.reflect,args=(str,user_cmd))  #多线程
-            t1.start()
+            try:
+                user_cmd = raw_input("->>").strip()
+                logger.debug(user_cmd)
+                if not user_cmd:
+                    continue
+
+                str = user_cmd.split()[0]
+                t1 = threading.Thread(target=self.reflect, args=(str, user_cmd))  #多线程
+                t1.start()
+            except Exception, ex:
+                print ex.message

@@ -6,7 +6,7 @@ import os
 
 
 class Server(object):
-    def __init__(self,rabbitmq,queue_name):
+    def __init__(self, rabbitmq, queue_name):
         self.queue_name = queue_name
         self.connection = pika.BlockingConnection(pika.ConnectionParameters(
             host=rabbitmq))

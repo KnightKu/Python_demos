@@ -16,8 +16,7 @@ else:
 
 #加载环境变量
 sys.path.append(BASE_DIR)
-from . import settings
-from . import main
+import main
 
 if __name__ == '__main__':
     obj = main.Handler()

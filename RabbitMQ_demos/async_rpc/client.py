@@ -3,7 +3,7 @@
 
 import pika
 import uuid
-from . import settings
+import settings
 
 
 class Client(object):
